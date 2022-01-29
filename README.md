@@ -1,2 +1,2 @@
 # epoll
-Read-Write data with epoll API in Go
+Read and write data with epoll API in Go [Linux-only]
