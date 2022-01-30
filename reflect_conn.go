@@ -13,7 +13,6 @@ const (
 )
 
 func findSysFD(conn net.Conn) int {
-
 	// net.conn private structure
 	/*
 		type conn struct {

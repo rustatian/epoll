@@ -88,7 +88,6 @@ func (ep *Epoll) AddConn(conn net.Conn) error {
 
 // https://man7.org/linux/man-pages/man2/epoll_wait.2.html
 func (ep *Epoll) Wait(ev []unix.EpollEvent) (int, error) {
-
 	/*
 		If timeout equals –1, block until an event occurs for one of the file descriptors in
 		the interest list for epfd or until a signal is caught.
