@@ -9,6 +9,18 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+/*
+	EPOLLIN Data other than high-priority data can be read
+	EPOLLPRI High-priority data can be read
+	EPOLLRDHUP Shutdown on peer socket (since Linux 2.6.17)
+	EPOLLOUT Normal data can be written
+	EPOLLET Employ edge-triggered event notification
+	EPOLLONESHOT Disable monitoring after event notification
+	EPOLLERR An error has occurred
+	EPOLLHUP A hangup has occurred
+
+*/
+
 type Epoll struct {
 	// epoll file descriptor
 	fd int
@@ -59,17 +71,6 @@ func (ep *Epoll) AddConn(conn net.Conn) error {
 	already in the interest list, epoll_ctl() fails with the error EEXIST.
 	*/
 
-	/*
-		EPOLLIN Data other than high-priority data can be read
-		EPOLLPRI High-priority data can be read
-		EPOLLRDHUP Shutdown on peer socket (since Linux 2.6.17)
-		EPOLLOUT Normal data can be written
-		EPOLLET Employ edge-triggered event notification
-		EPOLLONESHOT Disable monitoring after event notification
-		EPOLLERR An error has occurred
-		EPOLLHUP A hangup has occurred
-
-	*/
 	err := unix.EpollCtl(ep.fd, syscall.EPOLL_CTL_ADD, connFd, &unix.EpollEvent{
 		Events: unix.EPOLLIN | unix.EPOLLHUP | unix.EPOLLET,
 		Fd:     int32(connFd),
@@ -92,7 +93,7 @@ func (ep *Epoll) Wait(ev []unix.EpollEvent) (int, error) {
 		If timeout equals –1, block until an event occurs for one of the file descriptors in
 		the interest list for epfd or until a signal is caught.
 	*/
-	n, err := unix.EpollWait(ep.fd, ev[:], -1)
+	n, err := unix.EpollWait(ep.fd, ev[:], 1)
 	if err != nil {
 		if errors.Is(err, unix.EINTR) {
 			return 0, nil
@@ -132,7 +133,7 @@ func (ep *Epoll) WaitBlocking() error {
 
 func (ep *Epoll) ModWrite(fd int) {
 	err := unix.EpollCtl(ep.fd, unix.EPOLL_CTL_MOD, fd, &unix.EpollEvent{
-		Events: unix.EPOLLOUT,
+		Events: unix.EPOLLOUT | unix.EPOLLET,
 		Fd:     int32(fd),
 		Pad:    0,
 	})

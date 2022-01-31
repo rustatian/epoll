@@ -91,17 +91,14 @@ func TestName(t *testing.T) {
 						panic(err22)
 					}
 
-					if n == 0 {
-						ep.ModWrite(fd)
-						nw, err := syscall.Write(fd, []byte("echo"))
-						if err != nil {
-							panic(err)
-						}
-						fmt.Printf("data written: %d\n", nw)
-						return
-					}
-
 					fmt.Printf("read data: %d\n", n)
+
+					ep.ModWrite(fd)
+					nw, err := syscall.Write(fd, []byte("echo"))
+					if err != nil {
+						panic(err)
+					}
+					fmt.Printf("data written: %d\n", nw)
 				}
 			}()
 			//for i := 0; i < len(conns); i++ {
